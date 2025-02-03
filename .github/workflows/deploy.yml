@@ -25,4 +25,4 @@ jobs:
             git checkout main;
             git pull;
             git stash pop;
-            systemctl restart ${{ secrets.PROJECT_SERVICE }};
+            systemctl --user restart ${{ secrets.PROJECT_SERVICE }};
