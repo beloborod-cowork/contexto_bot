@@ -13,16 +13,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Run command on remote server
-        uses: D3rHase/ssh-command-action@v0.2.2
+        uses: D3rHase/ssh-command-action@latest
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           user: ${{ secrets.SSH_USER }}
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host_fingerprint: ${{ secrets.HOST_FINGERPRINT }}
           command: |
-            cd ${{ secrets.PROJECT_FOLDER }};
-            git stash;
-            git checkout main;
-            git pull;
-            git stash pop;
-            systemctl restart ${{ secrets.PROJECT_SERVICE }};
+            cd ${{ secrets.PROJECT_FOLDER }}
+            git stash
+            git checkout main
+            git pull
+            git stash pop
+            systemctl restart ${{ secrets.PROJECT_SERVICE }}
