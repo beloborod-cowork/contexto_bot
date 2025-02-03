@@ -1,0 +1,56 @@
+{
+  "1": {
+    "xp_req": 100,
+    "coins": 100,
+    "hints": 1
+  },
+  "2": {
+    "xp_req": 500,
+    "coins": 150,
+    "hints": 1
+  },
+  "3": {
+    "xp_req": 1500,
+    "coins": 200,
+    "hints": 1
+  },
+  "4": {
+    "xp_req": 4000,
+    "coins": 250,
+    "hints": 2
+  },
+  "5": {
+    "xp_req": 7500,
+    "coins": 350,
+    "hints": 3
+  },
+  "6": {
+    "xp_req": 10000,
+    "coins": 250,
+    "hints": 2
+  },
+  "7": {
+    "xp_req": 15000,
+    "coins": 300,
+    "hints": 2
+  },
+  "8": {
+    "xp_req": 25000,
+    "coins": 150,
+    "hints": 3
+  },
+  "9": {
+    "xp_req": 40000,
+    "coins": 500,
+    "hints": 0
+  },
+  "10": {
+    "xp_req": 75000,
+    "coins": 1000,
+    "hints": 10
+  },
+  "else": {
+    "coins": 200,
+    "hints": 1
+  }
+}

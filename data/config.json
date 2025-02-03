@@ -1,0 +1,7 @@
+{
+  "difficulty": 1000,
+  "exp_multiplier": 1.0,
+  "money_multiplier": 1.0,
+  "hints_from_words": false,
+  "broadcast_when_restarted": true
+}
