@@ -19,7 +19,6 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           user: ${{ secrets.SSH_USER }}
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          host_fingerprint: ${{ secrets.HOST_FINGERPRINT }}
           command: |
             cd ${{ secrets.PROJECT_FOLDER }}
             git stash
