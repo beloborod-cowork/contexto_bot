@@ -20,9 +20,9 @@ jobs:
           user: ${{ secrets.SSH_USER }}
           private_key: ${{ secrets.SSH_PRIVATE_KEY }}
           command: |
-            cd ${{ secrets.PROJECT_FOLDER }}
-            git stash
-            git checkout main
-            git pull
-            git stash pop
-            systemctl restart ${{ secrets.PROJECT_SERVICE }}
+            cd ${{ secrets.PROJECT_FOLDER }};
+            git stash;
+            git checkout main;
+            git pull;
+            git stash pop;
+            systemctl restart ${{ secrets.PROJECT_SERVICE }};
