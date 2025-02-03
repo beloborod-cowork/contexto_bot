@@ -1,6 +1,6 @@
 import sqlite3
 from logs import logger_database
-conn = sqlite3.connect("data\\users.db")
+conn = sqlite3.connect("data/users.db")
 cur = conn.cursor()
 
 def create_user_db(cur: sqlite3.Cursor = cur):

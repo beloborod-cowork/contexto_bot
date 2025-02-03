@@ -14,7 +14,7 @@ from load_config import load_config
 session = AiohttpSession() #Создание сессии
 # Создание бота
 async def main():
-    with open('data\\latest.log', 'w') as file:
+    with open('data/latest.log', 'w') as file:
         pass
     bot = Bot(token=API_TOKEN, parse_mode=ParseMode.HTML,session=session)
     dp = Dispatcher(storage=MemoryStorage())
