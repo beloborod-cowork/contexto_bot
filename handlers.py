@@ -59,7 +59,7 @@ async def schedule_daily_task(bot: Bot,bc: bool = True):
    global all_word_dicts
    global similarities 
    while True:
-      with open("data\\word_data.json","r",encoding="utf-8") as f:
+      with open("data/word_data.json","r",encoding="utf-8") as f:
          all_word_dicts = json.load(f)
       similarities = dict()
       for id in fetch_data("users","telegram_id"):
@@ -77,7 +77,7 @@ async def schedule_daily_task(bot: Bot,bc: bool = True):
          all_word_dicts,similarities = await generate_words(bot,all_word_dicts,similarities,bc)   
          
          logger_handlers.info("Ежедневные слова игроков были сброшены.")
-      with open("data\\word_data.json","w",encoding="utf-8") as f:
+      with open("data/word_data.json","w",encoding="utf-8") as f:
          json.dump(all_word_dicts,f,ensure_ascii=False)
 
 async def reset_word(bot: Bot,id_sender: int,id_receiver: int):
@@ -399,8 +399,8 @@ async def load_log(msg: Message):
    if msg.from_user.id in ADMINISTRATORS:
       try:
          logger_handlers.info("Лог сохранен.")
-         await msg.bot.send_document(chat_id=msg.from_user.id,document=FSInputFile(path="data\\latest.log"))
-         with open('data\\latest.log', 'w') as file:
+         await msg.bot.send_document(chat_id=msg.from_user.id,document=FSInputFile(path="data/latest.log"))
+         with open('data/latest.log', 'w') as file:
             pass
       except Exception as e:
          logger_handlers.error(f"Произошла ошибка при сохранении лога: {e}")
