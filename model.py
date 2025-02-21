@@ -3,6 +3,7 @@ import gensim.downloader as api
 from pymystem3 import Mystem
 import string
 from load_config import *
+from typing import Dict
 model = api.load("word2vec-ruscorpora-300")
 
 
@@ -56,8 +57,8 @@ def get_string_words(similarities,top_num: int):
     else: break
   return end_string
 
-def word_hint(word: str, top: int = 100):
-  word = choice(list(get_most_similar_dict(word,top).items()))
+def word_hint(word_dict: Dict[str,int],word: str, top: int = 100):
+  word = choice(list(word_dict.items())[:top])
   return {
     "word": word,
     "text": f"<b>Вы использовали 💡Подсказку.\n\n{word[0]} - {word[1]}</b>"

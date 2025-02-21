@@ -4,22 +4,12 @@ import random
 import math
 import asyncio
 
-def sigmoid_p(x, epsilon=0.01, k=0.5, x0=5):
-    """
-    Вычисляет вероятность выхода p(x) с использованием сигмоиды.
-    
-    Параметры:
-        x (float): Текущее значение x.
-        epsilon (float): Постоянный шанс не выйти из цикла (по умолчанию 1%).
-        k (float): Крутизна сигмоиды (по умолчанию 0.5).
-        x0 (float): Точка перегиба сигмоиды (по умолчанию 5).
-    
-    Возвращает:
-        float: Вероятность выхода p(x).
-    """
-    sigmoid = 1 / (1 + math.exp(-k * (x - x0)))  # Логистическая функция
-    p = (1 - epsilon) * sigmoid  # Учитываем epsilon
-    return p
+def count_crash():
+
+    values = [i for i in range(100,500,1)]
+    weights = [i for i in range(500,100,-1)]
+    result = random.choices(values,weights)
+    return result[0]
 
 
 async def handle_game(game: str, dice: Message, chat_id: int,bid: int) -> str:
@@ -57,23 +47,41 @@ async def handle_game(game: str, dice: Message, chat_id: int,bid: int) -> str:
     else:
         return "Неизвестная игра."
 
-async def handle_crash(msg: Message,bid: int, multiplier: float):
+async def handle_crash(msg: Message,bid: int, multiplier: float,id: int):
 
-    won = False
-    x = 1.0
+    multiplier_game = 1.0
     reset_parameter("users","coins",f"coins-{bid}",condition=f"WHERE telegram_id = {msg.chat.id}")
+    first_try = False
     while True:
-        p = sigmoid_p(x=x,x0=5,k=0.7)
-    
-        # Проверяем, сработал ли выход
+        multiplier_temp = count_crash() / 100
+        leave = random.choice([True,False])
         
-        x += 0.01
-        if x >= multiplier:
-            won = True
-        if random.random() < p:
-            if won == False:
-                await msg.answer(f"Увы, но вы проиграли.\nФинальный коэффицент: {x:.2f}")
+        if leave == True and first_try != False:
             break
-    if won:
-        reset_parameter("users","coins",f"coins+{int(bid*multiplier)}",condition=f"WHERE telegram_id = {msg.from_user.id}")
-        await msg.answer(f"Поздравляю вас, вы победили! \nФинальный коэффицент: {x:.2f}\nВы выиграли: {int(bid*multiplier)} монет")
+        else:
+            if multiplier_temp >= multiplier_game:
+                await msg.edit_text("<b>📈График поднялся!</b>\n"
+                                    f"<b>🔥Текущий множитель: {multiplier_temp}x</b>")
+            else:
+                await msg.edit_text("<b>📉График опустился.\n</b>"
+                                    f"🔥Текущий множитель: {multiplier_temp}x")
+            multiplier_game = multiplier_temp
+            if first_try == False:
+                first_try = True
+        await asyncio.sleep(0.75)
+    if multiplier_game >= multiplier:
+        reward = int(bid*multiplier)
+        await msg.answer("<b>🔥Вы победили!</b>\n"
+                         f"<b>Ваш множитель: {multiplier}x</b>\n"
+                         f"<b>Финальный множитель: {multiplier_game}x.</b>\n"
+                         f"<b>Вы получили: {reward}(+{reward-bid}) монет</b>")
+        reset_parameter("users","coins",f"coins + {reward}",condition=f"WHERE telegram_id = {id}")
+    else:
+        await msg.answer("<b>Увы, Вы проиграли.</b>\n"
+                         f"<b>Ваш множитель: {multiplier}x\n</b>"
+                         f"<b>Финальный множитель: {multiplier_game}x.</b>\n"
+                         f"<b>Вы потеряли: {bid} монет</b>")
+
+    return
+        
+        

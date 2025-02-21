@@ -2,7 +2,7 @@ import logging
 
 logger_main = logging.getLogger("logger_main")
 handler_main = logging.FileHandler(
-    filename="data\\latest.log",
+    filename="data/latest.log",
     encoding='utf-8'
 )
 formatter_main = logging.Formatter(fmt='[%(asctime)s][main.%(levelname)s]: %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
@@ -14,7 +14,7 @@ logger_main.setLevel(logging.DEBUG)
 
 logger_promo = logging.getLogger("logger_promo")
 handler_promo = logging.FileHandler(
-    filename="data\\latest.log",
+    filename="data/latest.log",
     encoding='utf-8'
 )
 formatter_promo = logging.Formatter(fmt='[%(asctime)s][promo.%(levelname)s]: %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
@@ -26,7 +26,7 @@ logger_promo.setLevel(logging.DEBUG)
 
 logger_handlers = logging.getLogger("logger_handlers")
 handler_handlers = logging.FileHandler(
-    filename="data\\latest.log",
+    filename="data/latest.log",
     encoding='utf-8'
 )
 formatter_handlers = logging.Formatter(fmt='[%(asctime)s][handlers.%(levelname)s]: %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
@@ -38,7 +38,7 @@ logger_handlers.setLevel(logging.DEBUG)
 
 logger_database = logging.getLogger("logger_database")
 handler_database = logging.FileHandler(
-    filename="data\\latest.log",
+    filename="data/latest.log",
     encoding='utf-8'
 )
 formatter_database = logging.Formatter(fmt='[%(asctime)s][database.%(levelname)s]: %(message)s',datefmt='%Y-%m-%d %H:%M:%S')
