@@ -5,7 +5,7 @@ from aiogram.filters import Command,CommandStart,StateFilter,CommandObject
 from aiogram.types import Message,CallbackQuery,FSInputFile
 from datetime import datetime,timedelta
 import asyncio
-from database import reset_parameter,fetch_data,insert_data, get_top10
+from database import reset_parameter,fetch_data,insert_data, get_top10, create_chats_db,create_chat_db,insert_data_from_table
 from model import init,word_hint
 from aiogram.client.bot import Bot
 from aiogram import F,exceptions
@@ -20,6 +20,7 @@ from load_config import *
 from random import randint
 from guess_word import g_word
 from games import handle_game,handle_crash
+from help_texts import*
 #-------------------------------------------------------------
 GAMES_EMOJI = {
     "кубик": "🎲",
@@ -164,9 +165,17 @@ async def settings(call: CallbackQuery):
 async def help(call: CallbackQuery):
    if call.data.split("_")[0] == "help":
       if call.data.split("_")[1] == "rules":
-         await call.message.answer("Правила игры в Contexto: \n\nСуть игры -- отгадать загаданное слово. Когда вы начинаете писать слова(команда /word), вы будете получать в ответ сообщение вида 'слово - число'. Чем меньше число, тем ближе это слово с загаданным по смыслу.\n\nКомандой /top можно увидеть топ-20 ваших запросов с их рейтингом соответственно.\n\nЗагаданное слово обновляется ежедневно и при рестарте бота.\nТакже в боте присутствуют подсказки(см. кнопку 'Подсказки')")
+         await call.message.answer(rules_text)
       elif call.data.split("_")[1] == "hints":
-         await call.message.answer("💡Подсказки\n\n💡Подсказки можно использовать командой /hint.\nПри использовании 💡Подсказки вам выводится слово из топ-100.\n💡Подсказки можно получить за победы в конкурсах и (в будущем) с некоторым шансом за отгадывание слова.")
+         await call.message.answer(hints_text)
+      elif call.data.split("_")[1] == "minigames":
+         await call.message.answer(minigames_text)
+      elif call.data.split("_")[1] == "levels":
+         await call.message.answer(levels_text)
+      elif call.data.split("_")[1] == "chatwork":
+         await call.message.answer(chatwork_text)
+      elif call.data.split("_")[1] == "chat":
+         await call.message.answer(chat_text)
 
 @router.callback_query(F.data.startswith("games"))
 async def handle_games(call: CallbackQuery,state: FSMContext):
@@ -303,6 +312,46 @@ async def check_player_status(msg: Message):
                     f"📖Попыток сегодня: {attempts}\n"
                     f"🏅Угадано сегодняшнее слово: {guessed_word}\n"
                      "-------------------------------")
+
+@router.message(Command("register_chat"))#Регистрация чата
+async def register_chat(msg: Message):
+   admins = await msg.chat.get_administrators()
+   owner = next((admin for admin in admins if admin.status == "creator"), None)
+   if msg.from_user.id != owner.user.id:
+      await msg.answer("Вы не являетесь владельцем чата, чтобы зарегистрировать чат.")
+      return
+   
+   chat_id = msg.chat.id
+   chat_exists = fetch_data("chats","*",condition=f"WHERE chat_id = {abs(chat_id)}")
+   if not chat_exists:
+      create_chats_db()
+      create_chat_db(abs(chat_id))
+      insert_data_from_table(f"chat_{abs(chat_id)}","user_id,username",f"SELECT telegram_id,username FROM users WHERE telegram_id = {msg.from_user.id}")
+      insert_data("chats","chat_id,chat_name",f"{abs(chat_id)},'{msg.chat.full_name}'")
+      reset_parameter("users","chat_linked",f"{abs(chat_id)}",condition=f"WHERE telegram_id = {msg.from_user.id}")
+      await msg.answer("Вы успешно зарегистрировали чат!\n"
+                     "Теперь участники чата могут привязать свой профиль к боту, используя команду /link_chat")
+      return
+   await msg.answer("Данный чат уже был зарегистрирован.")
+   
+@router.message(Command("link_chat"))
+async def link_chat(msg: Message):
+   if msg.chat.type not in CHATS:
+      await msg.answer("Данная команда доступна только в чатах.")
+      return
+   user_id = msg.from_user.id
+   chat_id = abs(msg.chat.id)
+   chat_info = fetch_data("chats","*",condition=f"WHERE chat_id = {chat_id}")
+   if not chat_info:
+      await msg.answer("Данный чат еще не был зарегистрирован. ")
+      return
+   user_info = fetch_data(f"chat_{chat_id}","*",condition=f"WHERE user_id = {user_id}")
+   if not user_info:
+      insert_data_from_table(f"chat_{chat_id}","user_id,username",f"SELECT telegram_id,username FROM users WHERE telegram_id = {user_id}")
+      reset_parameter("users","chat_linked",f"{chat_id}",condition=f"WHERE telegram_id = {msg.from_user.id}")
+      await msg.answer("Вы успешно привязали свой профиль!")
+      return
+   await msg.answer("Вы уже привязали свой профиль к чату. Если вы хотите перепривязать чат, ожидайте будущих обновлений")
 
 #Админские команды
 @router.message(Command("grestart",prefix="."))
@@ -446,13 +495,13 @@ async def admin_panel(msg: Message):
       return
    await msg.answer("Список команд:\n\n/grestart: Обновить слово у всех\n/restart *id*: Обновить слово у игрока id\n/exp_multiplier *х*: установить множитель х для опыта\n/hfw: включить/выключить получение подсказок за угаданные слова\n/hints_add *id* *x*: начислить x подсказок игроку id\n/add_promo *promo* *x* *y*: добавить промокод promo на x активаций с наградой в y подсказок\n/load_log - выгрузить лог бота\n/bc: включить/выключить сброс слова при рестарте\n/broadcast *msg*: рассылка сообщения msg всем юзерам бота")
 #Словесные команды
-@router.message(F.text.lower().startswith("рейтинг"))
+@router.message(F.text.lower().contains("рейтинг"))
 async def rating(msg: Message):
     await msg.answer("Выбери рейтинг, который хочешь посмотреть:",reply_markup=buttons.rating_kb)
 
 
 
-@router.message(F.text.lower().startswith("профиль"))
+@router.message(F.text.lower().contains("профиль"))
 async def profile(msg: Message):
    user_data = fetch_data("users","*",condition=f"WHERE telegram_id = {msg.from_user.id}")[0]
    id = user_data[0]
@@ -465,9 +514,11 @@ async def profile(msg: Message):
    coins = user_data[11]
    level = user_data[13]
    exp_req = load_rewards()[str(level+1)]["xp_req"]
-   await msg.answer(f"<b>👤Ваш профиль:\n🆔ID: {id}\n✍️Никнейм: {username}\n💡Подсказок: {hints}\n⏫Уровень: {level}\n📖Опыт: {exp}/{exp_req}\n🪙Монет: {coins}\n📖Попыток сегодня: {attempts}\n🥇Угаданных слов: {guessed_words}\n🏅Угадано сегодняшнее слово: {guessed_word}</b>",reply_markup=buttons.inline_keyboard_menu)
+   chat_linked = user_data[14]
+   chat_name = fetch_data("chats","chat_name",condition=f"WHERE chat_id = {chat_linked}")[0][0]
+   await msg.answer(f"<b>👤Ваш профиль:\n🆔ID: {id}\n✍️Никнейм: {username}\n💡Подсказок: {hints}\n⏫Уровень: {level}\n📖Опыт: {exp}/{exp_req}\n🪙Монет: {coins}\n📖Попыток сегодня: {attempts}\n🥇Угаданных слов: {guessed_words}\n🏅Угадано сегодняшнее слово: {guessed_word}\n\nПривязанный чат: {chat_name}</b>",reply_markup=buttons.inline_keyboard_menu)
 
-@router.message(F.text.lower().startswith("настройки"))
+@router.message(F.text.lower().contains("настройки"))
 async def settings_menu(msg: Message):
    if msg.chat.type in CHATS:
       await msg.answer("Данная функция пока что недоступна в чатах.")
