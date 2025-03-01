@@ -47,11 +47,8 @@ settings_kb = InlineKeyboardMarkup(inline_keyboard=[[btn_notification_enabled]])
 #инлайн кнопки /help
 btn_help_rules = InlineKeyboardButton(text="📖Правила",callback_data="help_rules")
 btn_help_hints = InlineKeyboardButton(text="💡Подсказки",callback_data="help_hints")
-btn_help_chatwork = InlineKeyboardButton(text="💬Работа в чатах",callback_data="help_chatwork")
-btn_help_minigames = InlineKeyboardButton(text="🎮Мини-игры",callback_data="help_minigames")
-btn_help_levels = InlineKeyboardButton(text="⏫Опыт и уровни",callback_data="help_levels")
-btn_help_chat = InlineKeyboardButton(text="🤷‍♂️Не нашли нужной информации?",callback_data="help_chat")
-help_kb = InlineKeyboardMarkup(inline_keyboard=[[btn_help_rules,btn_help_hints],[btn_help_minigames,btn_help_levels],[btn_help_chatwork],[btn_help_chat]])
+
+help_kb = InlineKeyboardMarkup(inline_keyboard=[[btn_help_rules,btn_help_hints]])
 
 def switch_btn(kb: InlineKeyboardMarkup,btn: InlineKeyboardButton) -> InlineKeyboardMarkup:
     kb.inline_keyboard = [[btn]]
