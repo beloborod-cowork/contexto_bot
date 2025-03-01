@@ -6,8 +6,8 @@ import asyncio
 
 def count_crash():
 
-    values = [i for i in range(100,500,1)]
-    weights = [i for i in range(500,100,-1)]
+    values = [i for i in range(100,1000,1)]
+    weights = [i for i in range(1000,100,-1)]
     result = random.choices(values,weights)
     return result[0]
 
